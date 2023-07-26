@@ -7,11 +7,12 @@ import (
 )
 
 func main() {
-	wallet, err := wallet.GenerateWalletLegacy()
+	wallet, err := wallet.GenerateWalletTaproot()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	fmt.Println(wallet.ToString())
+
 }

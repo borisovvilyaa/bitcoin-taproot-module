@@ -8,26 +8,56 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
-// Wallet представляет структуру с ключевой парой и адресом биткоин-кошелька.
+// Wallet represents a structure with a key pair and a bitcoin wallet address.
 type Wallet struct {
 	privateKey *btcec.PrivateKey
 	publicKey  *btcec.PublicKey
 	address    btcutil.Address
 }
 
-// GenerateWallet генерирует новую ключевую пару и адрес биткоин-кошелька.
+// GenerateWalletLegacy generates a new key pair and Bitcoin wallet address (for legacy logic).
 func GenerateWalletLegacy() (*Wallet, error) {
-	// Создаем новый ключ.
+	// Create a new private key.
 	privateKey, err := btcec.NewPrivateKey()
 	if err != nil {
 		return nil, err
 	}
 
-	// Получаем публичную часть ключа.
+	// Obtain the public part of the key.
 	publicKey := privateKey.PubKey()
 
-	// Получаем адрес биткоин-кошелька из публичного ключа.
+	// Get the Bitcoin wallet address from the uncompressed public key.
 	address, err := btcutil.NewAddressPubKey(publicKey.SerializeUncompressed(), &chaincfg.MainNetParams)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Wallet{
+		privateKey: privateKey,
+		publicKey:  publicKey,
+		address:    address,
+	}, nil
+}
+
+// GenerateWalletTaproot generates a new key pair and Bitcoin wallet address using Taproot.
+func GenerateWalletTaproot() (*Wallet, error) {
+	// Create a new private key.
+	privateKey, err := btcec.NewPrivateKey()
+	if err != nil {
+		return nil, err
+	}
+
+	// Obtain the public part of the key.
+	publicKey := privateKey.PubKey()
+
+	// Create a SegWit script from the compressed public key.
+	script, err := btcutil.NewAddressWitnessPubKeyHash(btcutil.Hash160(publicKey.SerializeCompressed()), &chaincfg.MainNetParams)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate a Taproot address from the SegWit script.
+	address, err := btcutil.NewAddressTaproot([]byte(script.EncodeAddress()), &chaincfg.MainNetParams)
 	if err != nil {
 		return nil, err
 	}
