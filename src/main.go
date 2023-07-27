@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Generate a new Taproot wallet.
-	wallet, err := wallet_module.GenerateWallet()
+	wallet, err := wallet_module.GenerateWalletLegacy()
 	if err != nil {
 		log.Fatalf("Error generating wallet: %v", err)
 	}
