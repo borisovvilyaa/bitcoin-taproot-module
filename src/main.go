@@ -1,18 +1,19 @@
 package main
 
 import (
+	"bit/src/wallet_module"
 	"fmt"
-
-	wallet "bit/src/wallet_module"
+	"log"
 )
 
 func main() {
-	wallet, err := wallet.GenerateWalletTaproot()
+	// Generate a new Taproot wallet.
+	wallet, err := wallet_module.GenerateWallet()
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalf("Error generating wallet: %v", err)
 	}
 
+	// Display wallet information.
+	fmt.Println("Wallet Information:")
 	fmt.Println(wallet.ToString())
-
 }
