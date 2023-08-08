@@ -9,14 +9,19 @@ import (
 )
 
 // Wallet представляет структуру с ключевой парой и адресом биткоин-кошелька.
-type Wallet struct {
+// type Wallet struct {
+// 	privateKey *btcec.PrivateKey
+// 	publicKey  *btcec.PublicKey
+// 	address    btcutil.Address
+// }
+
+type KeyPair struct {
 	privateKey *btcec.PrivateKey
 	publicKey  *btcec.PublicKey
-	address    btcutil.Address
 }
 
 // GenerateWallet генерирует новую ключевую пару и адрес биткоин-кошелька.
-func GenerateWalletLegacy() (*Wallet, error) {
+func GenerateKeyPair() (*KeyPair, error) {
 	// Создаем новый ключ.
 	privateKey, err := btcec.NewPrivateKey()
 	if err != nil {
@@ -26,21 +31,14 @@ func GenerateWalletLegacy() (*Wallet, error) {
 	// Получаем публичную часть ключа.
 	publicKey := privateKey.PubKey()
 
-	// Получаем адрес биткоин-кошелька из публичного ключа.
-	address, err := btcutil.NewAddressPubKey(publicKey.SerializeUncompressed(), &chaincfg.MainNetParams)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Wallet{
+	return &KeyPair{
 		privateKey: privateKey,
 		publicKey:  publicKey,
-		address:    address,
 	}, nil
 }
 
-// ToString returns a string representation of the key pair and address.
-func (w *Wallet) ToString() string {
+// ToString returns a string representation of the key pair.
+func (w *KeyPair) ToString() string {
 	privateWIF, err := btcutil.NewWIF(w.privateKey, &chaincfg.MainNetParams, true)
 	if err != nil {
 		return "Error: Unable to generate WIF for private key."
@@ -48,7 +46,7 @@ func (w *Wallet) ToString() string {
 
 	str := fmt.Sprintf("Bitcoin Private Key (WIF): %s\n", privateWIF.String())
 	str += fmt.Sprintf("Bitcoin Public Key: %x\n", w.publicKey.SerializeCompressed())
-	str += fmt.Sprintf("Bitcoin Address: %s", w.address.EncodeAddress())
+	// str += fmt.Sprintf("Bitcoin Address: %s", w.address.EncodeAddress())
 
 	return str
 }
